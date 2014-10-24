@@ -46,6 +46,11 @@ class beacon_locator(object):
     rospy.init_node('beacon_locator')
     rospy.Subscriber('/camera/image', Image, self.imSubCB)
     self.statePub = rospy.Publisher('/cwru/visionStateEst', PoseWithCovarianceStamped, queue_size=1)
+    
+    #Query the paramter server to get the upper and lower HSV bounds for our beacon color
+    self.lower_bound = rospy.get_param('~lower_bound',(  0,  0,  0))
+    self.upper_bound = rospy.get_param('~upper_bound',(255,255,255))
+    
     #Create state estimate message
     self.stateEst = PoseWithCovarianceStamped()
     #Create bridge to go between ROS messages and openCV images
@@ -56,6 +61,7 @@ class beacon_locator(object):
     self.stateEst.header.stamp = msg.header.stamp
     self.stateEst.header.frame_id = msg.header.frame_id
     # Do interesting thigns with image and esitmate state here.
+    
     self.statePub.publish(self.stateEst)
 
   def run(self):
